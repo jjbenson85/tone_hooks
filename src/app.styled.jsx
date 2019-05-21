@@ -4,10 +4,12 @@ import styled from 'styled-components'
 const transportHeight = '40px'
 
 export const Main = styled.main`
-    height: 100vh;
+    /* height: 100vh; */
     width: 100vw;
     display: flex;
     flex-direction: column;
+    padding-bottom: ${transportHeight};
+    box-sizing: border-box;
 `
 export const Transport = styled.div`
     background: yellow;
@@ -15,10 +17,12 @@ export const Transport = styled.div`
     position: fixed;
     bottom: 0;
     height: ${transportHeight};
+    width: 100vw;
 `
 export const MainPanel = styled.div`
     display: flex;
     height: 100%;
+    /* margin-bottom: ${transportHeight}; */
 
 `
 export const LeftPanel = styled.div`
