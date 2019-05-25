@@ -112,6 +112,7 @@ class App extends React.Component {
     this.trackClick = this.trackClick.bind(this)
     this.removeInstrument = this.removeInstrument.bind(this)
     this.handleInterfaceChange = this.handleInterfaceChange.bind(this)
+    this.handleControlChange = this.handleControlChange.bind(this)
   }
   
   componentDidMount(){
@@ -132,7 +133,10 @@ class App extends React.Component {
       return {
         oscillator: {
           type: 'sawtooth',
-          modulationFrequency: 0.2
+          modulationFrequency: 0.2,
+          detune: 0,
+          count: 2,
+          spread: 40,
         },
         envelope: {
           attack: 0.01,
@@ -146,7 +150,7 @@ class App extends React.Component {
           sustain: 0.5,
           release: 0.9,
           baseFrequency: 1000,
-          octaves: 2,
+          octaves: 4,
           exponent: 1
         },
         filter: {
@@ -168,7 +172,11 @@ class App extends React.Component {
       type: type,
       inst: toneInstrumentLookup[type](),
       gridPattern: [],
-      settings: this.toneInstrumentSettingsLookup(type)
+      settings: this.toneInstrumentSettingsLookup(type),
+      gridSettings:{
+        selectedOctave: 3,
+        duration: 1
+      }
     }
     newInst.inst.set(newInst.settings)
     toneInstruments[newInst.instId] = newInst
@@ -200,7 +208,7 @@ class App extends React.Component {
 
   }
   
-  toggleNote(instId, type, inst, pitch, duration, velocity, time, col, row){
+  toggleNote(instId, type, inst, pitch, duration, velocity, time, col, row, octave){
     // console.log('toggle', instId, type, inst, pitch, duration, velocity, time, col, row )
     
     let {toneInstruments} = this.state
@@ -247,7 +255,7 @@ class App extends React.Component {
       }
       const id = Tone.Transport.schedule(time => trigger(time), time);
 
-      gridPattern.push({ instId, id, type, inst, pitch, duration, velocity, time, col, row })
+      gridPattern.push({ instId, id, type, inst, pitch, duration, velocity, time, col, row, octave })
     }
     toneInstruments[instId].gridPattern = gridPattern
     this.setState({ toneInstruments })
@@ -257,7 +265,18 @@ class App extends React.Component {
     this.setState({displayId})
   }
   
+  handleControlChange(instId, name, value){
+    // console.log('handleControlChange',instId, name, value)
+    let { toneInstruments } = this.state
+    toneInstruments= {...toneInstruments}
+    let { gridSettings } = toneInstruments[instId]
+    console.log('pre', gridSettings)
+    gridSettings = {...gridSettings, [name]: value}
+    toneInstruments[instId].gridSettings = gridSettings;
+    console.log(toneInstruments, name, value, gridSettings )
+    this.setState({ toneInstruments })
 
+  }
   handleInterfaceChange(id,e){
     const { name, value, dataset } = e.target
     let {toneInstruments} = this.state
@@ -265,8 +284,9 @@ class App extends React.Component {
     let { settings, inst} = toneInstruments[id]
     settings = { ...settings }
     const { mod } = dataset
-    // console.log(id, settings, mod, name, value)
-    settings[mod][name] = parseFloat(value)
+    console.log(id, mod, name, value)
+    if(name==='type')settings[mod][name] = value
+    else settings[mod][name] = parseFloat(value)
     toneInstruments[id].settings = settings
     this.setState({ toneInstruments })
     // this.setState({toneInstruments:{[id]:{settings: newSettings}}}, console.log(this.state.toneInstruments[id]))
@@ -310,7 +330,8 @@ class App extends React.Component {
       </div>
     )
     
-    const { inst, type, instId, gridPattern, settings } = toneInstruments[displayId]
+    const { inst, type, instId, gridPattern, settings, gridSettings } = toneInstruments[displayId]
+    // console.log(gridSettings)
     // if (toneInstruments[1]) console.log('HEEEEEERRE',toneInstruments[0].settings===toneInstruments[1].settings)
     return (
       <div className="app">
@@ -342,6 +363,8 @@ class App extends React.Component {
                   inst={inst} 
                   handleCellClick={this.toggleNote}
                   gridPattern={gridPattern}
+                  gridSettings={gridSettings}
+                  handleControlChange={this.handleControlChange}
                 /> 
                 :
               <Instrument

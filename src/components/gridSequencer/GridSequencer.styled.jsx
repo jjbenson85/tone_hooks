@@ -9,6 +9,35 @@ export const Sequencer = styled.div`
     display: flex;
     flex-direction: row;
 `
+
+export const Controls = styled.div`
+    display: flex;
+    flex-direction: column;
+    width: 60px;
+    margin-left: 4px;
+    .button{
+      height: 100%;
+      width:100%;
+      background: grey;
+      margin: 0 4px;
+      text-align: center;
+      border: 1px solid black;
+      user-select: none;
+      &:hover{
+        background-color: white;
+      }
+      &.active{
+          background-color: green;
+      }
+      &.hidden{
+          visibility: hidden;
+          &:hover{
+            background-color: none;
+          }
+      }
+    }
+`
+
 export const Grid = styled.div`
     display: flex;
     flex-direction: row;
